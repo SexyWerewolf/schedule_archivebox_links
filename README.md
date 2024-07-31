@@ -2,6 +2,9 @@
 
 <p id="description">An easy way for daily snapshots using ArchiveBox</p>
 
+> **Note**
+This script is compatible only with the Docker version of ArchiveBox
+
 <h2>🛠️ Installation Steps:</h2>
 
 <p>1. Install Repo</p>
