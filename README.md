@@ -1,4 +1,4 @@
-<h1 align="center" id="title">Audo Schedule For ArchiveBox</h1>
+<h1 align="center" id="title">Auto Schedule For ArchiveBox</h1>
 
 <p id="description">An easy way for daily snapshots using ArchiveBox</p>
 
