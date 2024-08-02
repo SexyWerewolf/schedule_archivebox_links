@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Script Made By Dachi Wolf
+# https://github.com/SexyWerewolf
+
+
 # Color definitions for better appearance
 COLOR_RESET="\033[0m"
 COLOR_BOLD="\033[1m"
