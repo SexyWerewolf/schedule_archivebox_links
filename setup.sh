@@ -1,8 +1,15 @@
 #!/bin/bash
 
+# Color definitions for better appearance
+COLOR_RESET="\033[0m"
+COLOR_BOLD="\033[1m"
+COLOR_GREEN="\033[32m"
+COLOR_YELLOW="\033[33m"
+COLOR_RED="\033[31m"
+
 # Ensure the script is run with root privileges
 if [ "$(id -u)" -ne "0" ]; then
-    echo "This script must be run as root."
+    echo -e "${COLOR_RED}This script must be run as root.${COLOR_RESET}"
     exit 1
 fi
 
@@ -16,6 +23,7 @@ RUN_SCRIPT_PATH="$AUTO_ARCHIVE_LINKS_DIR/run-script.sh"
 
 # Function to create the boxadd script
 create_boxadd_script() {
+    echo -e "${COLOR_GREEN}Creating boxadd script...${COLOR_RESET}"
     echo "#!/bin/bash
 
 # Check if URL argument is provided
@@ -47,33 +55,35 @@ echo \"Added URL: \$URL\" >> \"\$LOG_FILE\"
 " | tee "$BOXADD_PATH" > /dev/null
 
     chmod +x "$BOXADD_PATH"
-    echo "Created boxadd script at $BOXADD_PATH"
+    echo -e "${COLOR_GREEN}Created boxadd script at $BOXADD_PATH${COLOR_RESET}"
 }
 
 # Function to create directories and files
 create_directories_and_files() {
+    echo -e "${COLOR_GREEN}Setting up directories and files...${COLOR_RESET}"
+    
     if [ -d "$AUTO_ARCHIVE_LINKS_DIR" ]; then
-        echo "Directory $AUTO_ARCHIVE_LINKS_DIR already exists."
+        echo -e "${COLOR_YELLOW}Directory $AUTO_ARCHIVE_LINKS_DIR already exists.${COLOR_RESET}"
         
         # Prompt for reset
         read -p "Do you want to reset the data in links.sh and logs.log? (y/n): " RESET
         if [ "$RESET" == "y" ]; then
-            echo -e "\n# Resetting links.sh and logs.log..."
+            echo -e "\n${COLOR_YELLOW}Resetting links.sh and logs.log...${COLOR_RESET}"
             echo -n "" > "$LINKS_FILE"   # Clear links.sh
             echo -n "" > "$LOGS_FILE"    # Clear logs.log
         fi
     else
-        echo "Creating directory $AUTO_ARCHIVE_LINKS_DIR..."
+        echo -e "${COLOR_GREEN}Creating directory $AUTO_ARCHIVE_LINKS_DIR...${COLOR_RESET}"
         mkdir -p "$AUTO_ARCHIVE_LINKS_DIR"
         
-        echo "Creating $LINKS_FILE..."
+        echo -e "${COLOR_GREEN}Creating $LINKS_FILE...${COLOR_RESET}"
         touch "$LINKS_FILE"
         
-        echo "Creating $LOGS_FILE..."
+        echo -e "${COLOR_GREEN}Creating $LOGS_FILE...${COLOR_RESET}"
         touch "$LOGS_FILE"
     fi
     
-    echo "Creating run-script.sh..."
+    echo -e "${COLOR_GREEN}Creating run-script.sh...${COLOR_RESET}"
     echo "#!/bin/bash
 
 # Define paths
@@ -103,21 +113,20 @@ done < \"$LINKS_FILE\"
 echo \"Archive job completed at \$(date)\" >> \"\$LOG_FILE\"
 " > "$RUN_SCRIPT_PATH"
     chmod +x "$RUN_SCRIPT_PATH"
-    echo "Created run-script.sh at $RUN_SCRIPT_PATH"
+    echo -e "${COLOR_GREEN}Created run-script.sh at $RUN_SCRIPT_PATH${COLOR_RESET}"
 }
 
 # Function to setup the cron job
 setup_cron() {
-    local valid_hours=0
-    local CRON_JOBS=""
-    
-    while [ $valid_hours -eq 0 ]; do
-        echo "Enter the hours (24-hour format) for the cron job, separated by periods (e.g., 18 for 6 PM):"
+    while true; do
+        echo -e "${COLOR_GREEN}Enter the hours (24-hour format) for the cron job, separated by periods (e.g., 18 for 6 PM):${COLOR_RESET}"
         read -p "Enter the hours: " HOURS
 
         # Prepare cron jobs
-        IFS='.' read -r -a TIME_ARRAY <<< "$HOURS"
         CRON_JOBS=""
+        IFS='.' read -r -a TIME_ARRAY <<< "$HOURS"
+        
+        valid_hours=true
         
         for TIME in "${TIME_ARRAY[@]}"; do
             # Validate the hour
@@ -130,17 +139,14 @@ setup_cron() {
                     CRON_JOBS+="0 $HOUR * * * $RUN_SCRIPT_PATH "
                 fi
             else
-                echo "Invalid hour: $TIME. Please enter hours between 0 and 23."
-                CRON_JOBS=""
+                echo -e "${COLOR_RED}Invalid hour: $TIME. Please enter hours between 0 and 23.${COLOR_RESET}"
+                valid_hours=false
                 break
             fi
         done
 
-        # Check if CRON_JOBS is valid
-        if [ -n "$CRON_JOBS" ]; then
-            valid_hours=1
-        else
-            echo "Please enter valid hours."
+        if [ "$valid_hours" == true ]; then
+            break
         fi
     done
 
@@ -153,14 +159,14 @@ setup_cron() {
     # Add the new cron jobs
     if [ -n "$CRON_JOBS" ]; then
         (crontab -l 2>/dev/null; echo "$CRON_JOBS") | crontab -
-        echo "Cron job(s) added: $CRON_JOBS"
+        echo -e "${COLOR_GREEN}Cron job(s) added: $CRON_JOBS${COLOR_RESET}"
     else
-        echo "No valid hours provided. No cron jobs added."
+        echo -e "${COLOR_YELLOW}No valid hours provided. No cron jobs added.${COLOR_RESET}"
     fi
 }
 
 # Main script logic
-echo "Starting setup..."
+echo -e "${COLOR_BOLD}Starting setup...${COLOR_RESET}"
 
 create_boxadd_script
 create_directories_and_files
@@ -170,7 +176,7 @@ read -p "Do you want to enable the cron job? (y/n): " ENABLE_CRON
 if [ "$ENABLE_CRON" == "y" ]; then
     setup_cron
 else
-    echo "Cron job not enabled. No cron job will be set up."
+    echo -e "${COLOR_YELLOW}Cron job not enabled. No cron job will be set up.${COLOR_RESET}"
 fi
 
-echo "Setup complete."
+echo -e "${COLOR_BOLD}Setup complete.${COLOR_RESET}"
