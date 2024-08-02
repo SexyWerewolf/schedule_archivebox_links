@@ -13,6 +13,7 @@ This script is compatible only with the docker-compose version of ArchiveBox. Mo
 ```
 git clone https://github.com/SexyWerewolf/schedule_archivebox_links.git
 cd schedule_archivebox_links
+tar -xvf schedule_archivebox_links.tar
 chmod +x setup.sh
 ```
 
