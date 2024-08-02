@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Color definitions for better appearance
 COLOR_RESET="\033[0m"
 COLOR_BOLD="\033[1m"
@@ -7,13 +6,11 @@ COLOR_GREEN="\033[32m"
 COLOR_YELLOW="\033[33m"
 COLOR_RED="\033[31m"
 COLOR_CYAN="\033[36m"
-
 # Ensure the script is run with root privileges
 if [ "$(id -u)" -ne "0" ]; then
     echo -e "${COLOR_RED}This script must be run as root.${COLOR_RESET}"
     exit 1
 fi
-
 # Define paths
 USER_BIN_DIR="$HOME/bin"
 BOXADD_PATH="/usr/local/bin/boxadd"
@@ -21,25 +18,20 @@ AUTO_ARCHIVE_LINKS_DIR="$HOME/archivebox/auto_archive_links"
 LINKS_FILE="$AUTO_ARCHIVE_LINKS_DIR/links.sh"
 LOGS_FILE="$AUTO_ARCHIVE_LINKS_DIR/logs.log"
 RUN_SCRIPT_PATH="$AUTO_ARCHIVE_LINKS_DIR/run-script.sh"
-
 # Function to create the boxadd script
 create_boxadd_script() {
     echo -e "${COLOR_GREEN}Creating boxadd script...${COLOR_RESET}"
     echo "#!/bin/bash
-
 # Check if URL argument is provided
 if [ -z \"\$1\" ]; then
     echo \"Usage: boxadd <URL>\"
     exit 1
 fi
-
 URL=\"\$1\"
 DOMAIN=\$(echo \"\$URL\" | awk -F[/:] '{print \$4}')
-
 # Define paths
 LINKS_FILE=\"$AUTO_ARCHIVE_LINKS_DIR/links.sh\"
 LOG_FILE=\"$AUTO_ARCHIVE_LINKS_DIR/logs.log\"
-
 # Function to add URL to the links.sh file
 add_url() {
     local url=\"\$1\"
@@ -47,18 +39,14 @@ add_url() {
     # Append the URL
     echo \"docker exec --user=archivebox archivebox-archivebox-1 archivebox add '\$url'\" >> \"\$LINKS_FILE\"
 }
-
 # Add URL to links.sh
 add_url \"\$URL\"
-
 # Log URL addition
 echo \"Added URL: \$URL\" >> \"\$LOG_FILE\"
 " | tee "$BOXADD_PATH" > /dev/null
-
     chmod +x "$BOXADD_PATH"
     echo -e "${COLOR_GREEN}Created boxadd script at $BOXADD_PATH${COLOR_RESET}"
 }
-
 # Function to create directories and files
 create_directories_and_files() {
     echo -e "${COLOR_GREEN}Setting up directories and files...${COLOR_RESET}"
@@ -86,14 +74,11 @@ create_directories_and_files() {
     
     echo -e "${COLOR_GREEN}Creating run-script.sh...${COLOR_RESET}"
     echo "#!/bin/bash
-
 # Define paths
 LINKS_FILE=\"$LINKS_FILE\"
 LOG_FILE=\"$LOGS_FILE\"
-
 # Write logs
 echo \"Running archive job at \$(date)\" >> \"\$LOG_FILE\"
-
 # Read and execute each line in the script file
 while IFS= read -r line; do
     if [[ \$line == docker* ]]; then
@@ -109,20 +94,17 @@ while IFS= read -r line; do
         echo \"\$line\"
     fi
 done < \"$LINKS_FILE\"
-
 # Log completion
 echo \"Archive job completed at \$(date)\" >> \"\$LOG_FILE\"
 " > "$RUN_SCRIPT_PATH"
     chmod +x "$RUN_SCRIPT_PATH"
     echo -e "${COLOR_GREEN}Created run-script.sh at $RUN_SCRIPT_PATH${COLOR_RESET}"
 }
-
 # Function to setup the cron job
 setup_cron() {
     while true; do
         echo -e "${COLOR_GREEN}Enter the hours (24-hour format) for the cron job, separated by periods (e.g., 18 for 6 PM):${COLOR_RESET}"
         read -p "Enter the hours: " HOURS
-
         # Prepare cron jobs
         CRON_JOBS=""
         IFS='.' read -r -a TIME_ARRAY <<< "$HOURS"
@@ -134,7 +116,6 @@ setup_cron() {
             if [[ "$TIME" =~ ^[0-9]+$ ]] && [ "$TIME" -ge 0 ] && [ "$TIME" -le 23 ]; then
                 # Use hours only, default minutes to 0
                 HOUR=${TIME}
-
                 # Add to cron jobs only if not already present
                 if [[ ! "$CRON_JOBS" =~ "0 $HOUR * * *" ]]; then
                     CRON_JOBS+="0 $HOUR * * * $RUN_SCRIPT_PATH "
@@ -145,18 +126,14 @@ setup_cron() {
                 break
             fi
         done
-
         if [ "$valid_hours" == true ]; then
             break
         fi
     done
-
     # Remove trailing space
     CRON_JOBS=$(echo "$CRON_JOBS" | sed 's/ $//')
-
     # Clear existing cron jobs related to this script
     crontab -l | grep -v "$RUN_SCRIPT_PATH" | crontab -
-
     # Add the new cron jobs
     if [ -n "$CRON_JOBS" ]; then
         (crontab -l 2>/dev/null; echo "$CRON_JOBS") | crontab -
@@ -165,13 +142,10 @@ setup_cron() {
         echo -e "${COLOR_YELLOW}No valid hours provided. No cron jobs added.${COLOR_RESET}"
     fi
 }
-
 # Main script logic
 echo -e "${COLOR_BOLD}Starting setup...${COLOR_RESET}"
-
 create_boxadd_script
 create_directories_and_files
-
 # Prompt to enable cron job
 read -p "Do you want to enable the cron job? (y/n): " ENABLE_CRON
 if [ "$ENABLE_CRON" == "y" ]; then
@@ -179,7 +153,6 @@ if [ "$ENABLE_CRON" == "y" ]; then
 else
     echo -e "${COLOR_YELLOW}Cron job not enabled. No cron job will be set up.${COLOR_RESET}"
 fi
-
 # Final message showing the main location of the script
 echo 
 echo -e "${COLOR_BOLD}Setup complete.${COLOR_RESET}"
