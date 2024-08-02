@@ -1,15 +1,12 @@
 #!/bin/bash
 
-# Script Made By Dachi Wolf
-# https://github.com/SexyWerewolf
-
-
 # Color definitions for better appearance
 COLOR_RESET="\033[0m"
 COLOR_BOLD="\033[1m"
 COLOR_GREEN="\033[32m"
 COLOR_YELLOW="\033[33m"
 COLOR_RED="\033[31m"
+COLOR_CYAN="\033[36m"
 
 # Ensure the script is run with root privileges
 if [ "$(id -u)" -ne "0" ]; then
@@ -183,4 +180,10 @@ else
     echo -e "${COLOR_YELLOW}Cron job not enabled. No cron job will be set up.${COLOR_RESET}"
 fi
 
+# Final message showing the main location of the script
+echo 
 echo -e "${COLOR_BOLD}Setup complete.${COLOR_RESET}"
+echo
+echo -e "\n${COLOR_CYAN}${COLOR_BOLD}=====================================================${COLOR_RESET}"
+echo -e "${COLOR_CYAN}${COLOR_BOLD}Main location of the script:${COLOR_GREEN} $AUTO_ARCHIVE_LINKS_DIR${COLOR_RESET}"
+echo -e "${COLOR_CYAN}${COLOR_BOLD}=====================================================${COLOR_RESET}"
