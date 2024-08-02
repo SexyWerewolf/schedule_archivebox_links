@@ -35,7 +35,6 @@ LOG_FILE=\"$AUTO_ARCHIVE_LINKS_DIR/logs.log\"
 # Function to add URL to the links.sh file
 add_url() {
     local url=\"\$1\"
-    
     # Append the URL
     echo \"docker exec --user=archivebox archivebox-archivebox-1 archivebox add '\$url'\" >> \"\$LINKS_FILE\"
 }
@@ -50,10 +49,8 @@ echo \"Added URL: \$URL\" >> \"\$LOG_FILE\"
 # Function to create directories and files
 create_directories_and_files() {
     echo -e "${COLOR_GREEN}Setting up directories and files...${COLOR_RESET}"
-    
     if [ -d "$AUTO_ARCHIVE_LINKS_DIR" ]; then
         echo -e "${COLOR_YELLOW}Directory $AUTO_ARCHIVE_LINKS_DIR already exists.${COLOR_RESET}"
-        
         # Prompt for reset
         read -p "Do you want to reset the data in links.sh and logs.log? (y/n): " RESET
         if [ "$RESET" == "y" ]; then
@@ -64,14 +61,11 @@ create_directories_and_files() {
     else
         echo -e "${COLOR_GREEN}Creating directory $AUTO_ARCHIVE_LINKS_DIR...${COLOR_RESET}"
         mkdir -p "$AUTO_ARCHIVE_LINKS_DIR"
-        
         echo -e "${COLOR_GREEN}Creating $LINKS_FILE...${COLOR_RESET}"
         touch "$LINKS_FILE"
-        
         echo -e "${COLOR_GREEN}Creating $LOGS_FILE...${COLOR_RESET}"
         touch "$LOGS_FILE"
     fi
-    
     echo -e "${COLOR_GREEN}Creating run-script.sh...${COLOR_RESET}"
     echo "#!/bin/bash
 # Define paths
@@ -108,9 +102,7 @@ setup_cron() {
         # Prepare cron jobs
         CRON_JOBS=""
         IFS='.' read -r -a TIME_ARRAY <<< "$HOURS"
-        
         valid_hours=true
-        
         for TIME in "${TIME_ARRAY[@]}"; do
             # Validate the hour
             if [[ "$TIME" =~ ^[0-9]+$ ]] && [ "$TIME" -ge 0 ] && [ "$TIME" -le 23 ]; then
