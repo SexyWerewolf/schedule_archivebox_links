@@ -8,23 +8,15 @@ This script is compatible only with the docker-compose version of ArchiveBox. Mo
 
 <h2>🛠️ Installation Steps:</h2>
 
-<p>1. Install Repo</p>
+<p>1. 1 Click Install</p>
 
 ```
 git clone https://github.com/SexyWerewolf/schedule_archivebox_links.git
-```
-
-```
 cd schedule_archivebox_links
-```
-
-<p>3. Give Execute Permisions</p>
-
-```
 chmod +x setup.sh
 ```
 
-<p>4. Run The Setup</p>
+<p>2. Run The Setup</p>
 
 ```
 ./setup.sh
@@ -32,7 +24,7 @@ chmod +x setup.sh
 
 <h2>🍰 Guidelines:</h2>
 
-By default the main directory is: $HOME/archivebox/auto\_archive\_links
+By default the main directory is: $HOME/archivebox/auto_archive_links
 
 You can add links using: boxadd https://example.com
 
