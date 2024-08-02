@@ -3,7 +3,8 @@
 <p id="description">An easy way for daily snapshots using ArchiveBox</p>
 
 > **Note**
-This script is compatible only with the Docker version of ArchiveBox
+This script is compatible only with the docker-compose version of ArchiveBox. More information can be found [here](https://github.com/ArchiveBox/ArchiveBox?tab=readme-ov-file#quickstart) as **ArchiveBox docker-compose**.
+
 
 <h2>🛠️ Installation Steps:</h2>
 
