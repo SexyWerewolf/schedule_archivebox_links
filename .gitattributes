@@ -1,5 +1,2 @@
-.sh text eol=lf
-.txt text eol=lf
-.md text eol=lf
-.log text eol=lf
-.bash text eol=lf
+* text eol=crlf
+* text eol=lf
