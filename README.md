@@ -8,7 +8,7 @@ This script is compatible only with the docker-compose version of ArchiveBox. Mo
 
 <h2>🛠️ Installation Steps:</h2>
 
-<p>1. 1 Click Install</p>
+<p>1. Click Install</p>
 
 ```
 git clone https://github.com/SexyWerewolf/schedule_archivebox_links.git
