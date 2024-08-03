@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Script Made By Dachi Wolf
+# https://github.com/SexyWerewolf
+
 # Color definitions for better appearance
 COLOR_RESET="\033[0m"
 COLOR_BOLD="\033[1m"
@@ -6,18 +10,29 @@ COLOR_GREEN="\033[32m"
 COLOR_YELLOW="\033[33m"
 COLOR_RED="\033[31m"
 COLOR_CYAN="\033[36m"
+
 # Ensure the script is run with root privileges
 if [ "$(id -u)" -ne "0" ]; then
     echo -e "${COLOR_RED}This script must be run as root.${COLOR_RESET}"
     exit 1
 fi
+
+# Get the actual user running the script
+if [ -z "$SUDO_USER" ]; then
+    echo -e "${COLOR_RED}This script must be run with sudo.${COLOR_RESET}"
+    exit 1
+fi
+
+USER_HOME=$(eval echo ~${SUDO_USER})
+
 # Define paths
-USER_BIN_DIR="$HOME/bin"
+USER_BIN_DIR="$USER_HOME/bin"
 BOXADD_PATH="/usr/local/bin/boxadd"
-AUTO_ARCHIVE_LINKS_DIR="$HOME/archivebox/auto_archive_links"
+AUTO_ARCHIVE_LINKS_DIR="$USER_HOME/archivebox/auto_archive_links"
 LINKS_FILE="$AUTO_ARCHIVE_LINKS_DIR/links.sh"
 LOGS_FILE="$AUTO_ARCHIVE_LINKS_DIR/logs.log"
 RUN_SCRIPT_PATH="$AUTO_ARCHIVE_LINKS_DIR/run-script.sh"
+
 # Function to create the boxadd script
 create_boxadd_script() {
     echo -e "${COLOR_GREEN}Creating boxadd script...${COLOR_RESET}"
@@ -44,8 +59,10 @@ add_url \"\$URL\"
 echo \"Added URL: \$URL\" >> \"\$LOG_FILE\"
 " | tee "$BOXADD_PATH" > /dev/null
     chmod +x "$BOXADD_PATH"
+    chown "$SUDO_USER:$SUDO_USER" "$BOXADD_PATH"
     echo -e "${COLOR_GREEN}Created boxadd script at $BOXADD_PATH${COLOR_RESET}"
 }
+
 # Function to create directories and files
 create_directories_and_files() {
     echo -e "${COLOR_GREEN}Setting up directories and files...${COLOR_RESET}"
@@ -62,12 +79,15 @@ create_directories_and_files() {
     else
         echo -e "${COLOR_GREEN}Creating directory $AUTO_ARCHIVE_LINKS_DIR...${COLOR_RESET}"
         mkdir -p "$AUTO_ARCHIVE_LINKS_DIR"
+        chown "$SUDO_USER:$SUDO_USER" "$AUTO_ARCHIVE_LINKS_DIR"
         
         echo -e "${COLOR_GREEN}Creating $LINKS_FILE...${COLOR_RESET}"
         touch "$LINKS_FILE"
+        chown "$SUDO_USER:$SUDO_USER" "$LINKS_FILE"
         
         echo -e "${COLOR_GREEN}Creating $LOGS_FILE...${COLOR_RESET}"
         touch "$LOGS_FILE"
+        chown "$SUDO_USER:$SUDO_USER" "$LOGS_FILE"
     fi
     echo -e "${COLOR_GREEN}Creating run-script.sh...${COLOR_RESET}"
     echo "#!/bin/bash
@@ -95,8 +115,10 @@ done < \"$LINKS_FILE\"
 echo \"Archive job completed at \$(date)\" >> \"\$LOG_FILE\"
 " > "$RUN_SCRIPT_PATH"
     chmod +x "$RUN_SCRIPT_PATH"
+    chown "$SUDO_USER:$SUDO_USER" "$RUN_SCRIPT_PATH"
     echo -e "${COLOR_GREEN}Created run-script.sh at $RUN_SCRIPT_PATH${COLOR_RESET}"
 }
+
 # Function to setup the cron job
 setup_cron() {
     while true; do
@@ -128,15 +150,16 @@ setup_cron() {
     # Remove trailing space
     CRON_JOBS=$(echo "$CRON_JOBS" | sed 's/ $//')
     # Clear existing cron jobs related to this script
-    crontab -l | grep -v "$RUN_SCRIPT_PATH" | crontab -
+    crontab -u "$SUDO_USER" -l | grep -v "$RUN_SCRIPT_PATH" | crontab -u "$SUDO_USER" -
     # Add the new cron jobs
     if [ -n "$CRON_JOBS" ]; then
-        (crontab -l 2>/dev/null; echo "$CRON_JOBS") | crontab -
+        (crontab -u "$SUDO_USER" -l 2>/dev/null; echo "$CRON_JOBS") | crontab -u "$SUDO_USER" -
         echo -e "${COLOR_GREEN}Cron job(s) added: $CRON_JOBS${COLOR_RESET}"
     else
         echo -e "${COLOR_YELLOW}No valid hours provided. No cron jobs added.${COLOR_RESET}"
     fi
 }
+
 # Main script logic
 echo -e "${COLOR_BOLD}Starting setup...${COLOR_RESET}"
 create_boxadd_script
@@ -148,6 +171,7 @@ if [ "$ENABLE_CRON" == "y" ]; then
 else
     echo -e "${COLOR_YELLOW}Cron job not enabled. No cron job will be set up.${COLOR_RESET}"
 fi
+
 # Final message showing the main location of the script
 echo 
 echo -e "${COLOR_BOLD}Setup complete.${COLOR_RESET}"
